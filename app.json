@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AiArtGenerator",
-    "slug": "AiArtGenerator",
+    "slug": "aiimagegenerator",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.uttej_k.aiimagegenerator"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d25ec6ba-9853-4828-b13a-93393fe47d07"
+      }
+    },
+    "owner": "uttej_k"
   }
 }
