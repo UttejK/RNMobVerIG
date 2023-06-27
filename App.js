@@ -1,5 +1,5 @@
 import { Cloudinary } from "@cloudinary/url-gen";
-import ReactNativeBlobUtil from "react-native-blob-util";
+import axios from "axios";
 import { StatusBar } from "expo-status-bar";
 import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { View, useColorScheme } from "react-native";
@@ -53,54 +53,63 @@ export default function App() {
     formData.append("file", blob);
     formData.append("upload_preset", "uploadtoCloudinary");
     let data = "";
+    console.log("axiosStart");
     try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${
-          cld.getConfig().cloud.cloudName
-        }/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const responseData = await response.json();
-      data = responseData["secure_url"];
-    } catch (error) {
-      console.error(error);
+      const test = await axios
+        .post(
+          `https://api.cloudinary.com/v1_1/${
+            cld.getConfig().cloud.cloudName
+          }/image/upload`,
+          formData
+        )
+        .then((res, err) => {
+          try {
+            data = res.data["secure_url"];
+          } catch {
+            console.error("Axios error:\t", err);
+          } finally {
+            console.log("axiosEnd");
+          }
+        });
+      console.log("test:\t", test);
+    } catch (err) {
+      console.error("Upload to cloudinary Error:\t", err);
     }
+
+    console.log(data);
     return data;
   };
 
   const render = async () => {
     console.log("render started");
-    if (prompt === "") {
-      alert("Enter a prompt, please.");
-      return;
-    }
-
-    setLoading(true); // Set loading state to true before starting the rendering process
-
-    try {
-      const blob = await hf.textToImage({
-        model: "prompthero/openjourney-v4",
-        inputs: prompt,
-        parameters: {
-          width: 512,
-          height: 512,
-          negative_prompt:
-            "worst quality, low quality, anime, cartoon, mutilated, out of frame, extra fingers, mutated hands, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, bad face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, deformed tongue, children preteen kids jpeg artifacts, text, dark skin, nsfw, nude, naked",
-        },
-      });
-
-      const cloudinaryURL = await uploadToCloudinary(blob);
-
-      setUrl(cloudinaryURL);
+    if (prompt === "") alert("enter a propmt please");
+    else {
+      let response = await hf
+        .textToImage({
+          model: "prompthero/openjourney-v4",
+          inputs: prompt,
+          parameters: {
+            width: 512,
+            height: 512,
+            negative_prompt:
+              "worst quality, low quality, anime, cartoon, mutilated, out of frame, extra fingers, mutated hands, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, bad face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, deformed tongue, children preteen kids jpeg artifacts, text, dark skin, nsfw, nude, naked",
+          },
+        })
+        .then(async (blob) => {
+          // const image = new Image();
+          // image.src = URL.createObjectURL(blob);
+          console.log(blob);
+          try {
+            const cloudinaryURL = await uploadToCloudinary(blob);
+            console.log(cloudinaryURL);
+            return cloudinaryURL;
+          } catch (error) {
+            console.error("Render error:\t", error);
+          }
+        });
+      setUrl(response);
       setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false); // Set loading state to false in case of an error
     }
-
     console.log("render ended");
   };
 
