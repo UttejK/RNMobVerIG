@@ -53,27 +53,29 @@ export default function App() {
     formData.append("file", blob);
     formData.append("upload_preset", "uploadtoCloudinary");
     let data = "";
-    console.log("axiosStart");
+    console.log("fetchStart");
+
     try {
-      const test = await axios
-        .post(
-          `https://api.cloudinary.com/v1_1/${
-            cld.getConfig().cloud.cloudName
-          }/image/upload`,
-          formData
-        )
-        .then((res, err) => {
-          try {
-            data = res.data["secure_url"];
-          } catch {
-            console.error("Axios error:\t", err);
-          } finally {
-            console.log("axiosEnd");
-          }
-        });
-      console.log("test:\t", test);
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${
+          cld.getConfig().cloud.cloudName
+        }/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const json = await response.json();
+      data = json.secure_url;
     } catch (err) {
-      console.error("Upload to cloudinary Error:\t", err);
+      console.error("Upload to Cloudinary Error:", err);
+    } finally {
+      console.log("fetchEnd");
     }
 
     console.log(data);
