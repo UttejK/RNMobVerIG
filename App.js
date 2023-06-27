@@ -57,11 +57,12 @@ export default function App() {
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${
-          cld.getConfig().cloud.cloudName
-        }/image/upload`,
+        `https://api.cloudinary.com/v1_1/dqwkje1he/image/upload`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           body: formData,
         }
       );
